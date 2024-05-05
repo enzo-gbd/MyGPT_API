@@ -1,0 +1,13 @@
+root = "."
+tmp_dir = "tmp"
+
+[[mounts]]
+source = "."
+target = "."
+
+[build]
+cmd = "go build -o ./tmp/penpals-api ./cmd/penpals-api/main.go"
+bin = "tmp/penpals-api"
+
+[color]
+main = "yellow"
