@@ -1,0 +1,420 @@
+definitions:
+  models.SignInInput:
+    description: Fields required to login a user.
+    properties:
+      email:
+        description: Email address of the user
+        type: string
+      password:
+        description: Password for the user account
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  models.SignUpInput:
+    description: Fields required to register a new user.
+    properties:
+      birthday:
+        description: Birthday of the user
+        type: string
+      email:
+        description: Email address of the user
+        type: string
+      first_name:
+        description: First name of the user
+        type: string
+      gender:
+        description: Gender of the user
+        type: string
+      name:
+        description: Last name of the user
+        type: string
+      password:
+        description: Password for the user account
+        type: string
+    required:
+    - birthday
+    - email
+    - first_name
+    - gender
+    - name
+    - password
+    type: object
+  models.User:
+    description: User holds all details about a user.
+    properties:
+      address:
+        allOf:
+        - $ref: '#/definitions/sql.NullString'
+        description: Optional address of the user
+      birthday:
+        description: Birthday of the user
+        type: string
+      createdAt:
+        description: Timestamp when the user was created
+        type: string
+      deletedAt:
+        description: Optional timestamp when the user was deleted
+        type: string
+      email:
+        description: Email address of the user, must be unique
+        type: string
+      firstName:
+        description: First name of the user
+        type: string
+      gender:
+        description: Gender of the user
+        type: string
+      id:
+        description: Unique identifier for the user
+        type: string
+      isActive:
+        description: Flag indicating if the user account is active
+        type: boolean
+      name:
+        description: Last name of the user
+        type: string
+      password:
+        description: Password for the user account
+        type: string
+      role:
+        description: Role of the user in the system
+        type: string
+      subscriptionCode:
+        allOf:
+        - $ref: '#/definitions/sql.NullString'
+        description: Optional subscription code
+      updatedAt:
+        description: Timestamp when the user was last updated
+        type: string
+      verificationCode:
+        allOf:
+        - $ref: '#/definitions/sql.NullString'
+        description: Optional verification code
+      verified:
+        description: Flag indicating if the user has verified their email
+        type: boolean
+    type: object
+  models.UserResponse:
+    description: UserResponse holds the data that is exposed to the client after API
+      requests.
+    properties:
+      address:
+        description: Address of the user (present even if empty as a blank string)
+        type: string
+      birthday:
+        description: Birthday of the user, omitted if empty
+        type: string
+      created_at:
+        description: Timestamp when the user was created
+        type: string
+      email:
+        description: Email address of the user, omitted if empty
+        type: string
+      first_name:
+        description: First name of the user, omitted if empty
+        type: string
+      gender:
+        description: Gender of the user, omitted if empty
+        type: string
+      id:
+        description: Unique identifier for the user, omitted if empty
+        type: string
+      name:
+        description: Last name of the user, omitted if empty
+        type: string
+      role:
+        description: Role of the user within the system, omitted if empty
+        type: string
+      subscription_code:
+        description: Subscription code related to the user's account (present even
+          if empty as a blank string)
+        type: string
+      updated_at:
+        description: Timestamp when the user profile was last updated
+        type: string
+    type: object
+  sql.NullString:
+    properties:
+      string:
+        type: string
+      valid:
+        description: Valid is true if String is not NULL
+        type: boolean
+    type: object
+info:
+  version: "0.1"
+  title: Penpals-API
+  contact: {}
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Logs in a user and returns an access token and a refresh token.
+      parameters:
+      - description: User Login Data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/models.SignInInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns the access token and refresh token on successful login
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Returns error message for bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Returns error message for invalid email or password
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Returns error message for internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login a user
+      tags:
+      - Authentication
+  /logout:
+    post:
+      description: Logs out a user by invalidating the tokens.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns status success on successful logout
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Logout a user
+      tags:
+      - Authentication
+  /refresh:
+    post:
+      description: Refreshes an access token using the refresh token provided in cookie.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns new access token
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Returns error message for unauthorized or invalid token
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Returns error message when the user does not exist
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Returns error message for internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Refresh access token
+      tags:
+      - Authentication
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user with the necessary details provided in the
+        request body.
+      parameters:
+      - description: User Registration Data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/models.SignUpInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Returns status success on successful registration
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Returns error message for bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Returns error message for email already exists
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Returns error message for internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register a new user
+      tags:
+      - Authentication
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Fetches all users from the database.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: Get all users
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a user by UUID.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: Delete user
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Fetches a user from the database by UUID.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: Get user by ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Updates details of an existing user.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: Update user
+      tags:
+      - users
+  /users/me:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves information about the current logged in user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get current user
+      tags:
+      - users
+swagger: "2.0"

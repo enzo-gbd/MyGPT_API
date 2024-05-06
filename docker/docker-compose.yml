@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    restart: always
+    ports:
+      - "5432:5432"
+  adminer:
+    image: 'adminer'
+    container_name: penpals-adminer
+    restart: always
+    ports:
+      - '5001:8080'
+    links:
+      - 'db:db'
+  redis:
+    image: 'redis:latest'
+    container_name: penpals-redis
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    restart: always
+    ports:
+      - '6379:6379'
+  penpals-api:
+    build:
+      context: ..
+      target: ${TARGET}
+      dockerfile: ./Dockerfile
+    ports:
+      - "8443:8443"
+    volumes:
+      - ../:/app
+    links:
+      - 'db:db'
+    depends_on:
+      - db
+      - redis
+    restart: always
+
+volumes:
+  db-data:
+  redis-data:
