@@ -1,0 +1,71 @@
+name: Continuous Integration and Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.15' # or any specific version of Go you need
+
+      - name: Tidy modules
+        run: go mod tidy
+
+      - name: Build
+        run: go build ./cmd/GBA
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.15' # or any specific version of Go you need
+
+      - name: Setup environment variables
+        run: |
+          cp example.env local.env
+          echo "ACCESS_TOKEN_PRIVATE_KEY=${{ secrets.ACCESS_TOKEN_PRIVATE_KEY }}" >> local.env
+          echo "ACCESS_TOKEN_PUBLIC_KEY=${{ secrets.ACCESS_TOKEN_PUBLIC_KEY }}" >> local.env
+          echo "REFRESH_TOKEN_PRIVATE_KEY=${{ secrets.REFRESH_TOKEN_PRIVATE_KEY }}" >> local.env
+          echo "REFRESH_TOKEN_PUBLIC_KEY=${{ secrets.REFRESH_TOKEN_PUBLIC_KEY }}" >> local.env
+          mkdir ./tls
+          echo "${{ secrets.CERT_PEM }}" > ./tls/cert.pem
+          echo "${{ secrets.KEY_PEM }}" > ./tls/key.pem
+
+      - name: Tidy modules
+        run: go mod tidy
+
+      - name: Run tests
+        run: go test ./...
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Add your deployment script here
+      - name: Deploy
+        run: echo "Deploy step goes here"
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+
