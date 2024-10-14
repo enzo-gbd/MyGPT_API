@@ -104,23 +104,40 @@ Verify the files are correctly placed
 ```
 ## Run Locally
 
-Clone the project
-
-```bash
-  git clone https://github.com/enzo-gbd/GBA
-```
-
-Go to the project directory
-
-```bash
-  cd GBA
-```
-
 Build the docker
 
 ```bash
-  cd docker
-  docker-compose up -d
+  docker-compose --project-directory docker/ --project-name GBA up -d
 ```
 
+## Migrate the database
 
+Find the api container id
+
+```bash
+  docker ps
+    CONTAINER ID   IMAGE                           COMMAND                  CREATED          STATUS          PORTS                    NAMES
+    139b787297f4   gba-api                         "air"                    19 seconds ago   Up 18 seconds   0.0.0.0:8443->8443/tcp   gba-api-1
+    0dda75ef949c   adminer                         "entrypoint.sh php -…"   38 seconds ago   Up 18 seconds   0.0.0.0:5001->8080/tcp   gba-adminer-1
+    2852b1591300   postgres:latest                 "docker-entrypoint.s…"   38 seconds ago   Up 18 seconds   0.0.0.0:5432->5432/tcp   gba-db-1
+    462890c3ef70   redis:latest                    "docker-entrypoint.s…"   38 seconds ago   Up 18 seconds   0.0.0.0:6379->6379/tcp   gba-redis-1
+```
+
+Run this command with the container id to access to the container terminal
+
+```bash
+  docker exec -it 139b787297f4 bash
+    root@139b787297f4:/app#
+```
+
+Build the migration executable
+
+```bash
+  go build -o ./tmp/migrate ./cmd/migrate/migrate.go
+```
+
+Execute the migration
+
+```bash
+  cd tmp && ./migrate
+```

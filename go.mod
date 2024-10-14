@@ -1,6 +1,6 @@
 module github.com/enzo-gbd/GBA
 
-go 1.22.0
+go 1.23.2
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2

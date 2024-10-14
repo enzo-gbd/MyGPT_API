@@ -6,8 +6,8 @@ source = "."
 target = "."
 
 [build]
-cmd = "go build -o ./tmp/penpals-api ./cmd/penpals-api/main.go"
-bin = "tmp/penpals-api"
+cmd = "go build -o ./tmp/GBA ./cmd/GBA/main.go"
+bin = "tmp/GBA"
 
 [color]
 main = "yellow"

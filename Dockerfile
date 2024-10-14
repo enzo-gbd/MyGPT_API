@@ -1,8 +1,8 @@
 FROM alpine:latest as perms
-COPY /docker/entrypoint.rec.sh /entrypoint.sh
+COPY /docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-FROM golang:1.22 as builder
+FROM golang:1.23.2 as builder
 
 WORKDIR /app
 
@@ -14,9 +14,9 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o GBA ./cmd/GBA/main.go
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o migration ./cmd/migrate/migrate.go
 
-FROM golang:1.22 as development
+FROM golang:1.23.2 as development
 
-RUN go install github.com/cosmtrek/air@latest
+RUN go install github.com/air-verse/air@latest
 
 COPY --from=builder /app /app
 
@@ -29,7 +29,7 @@ CMD ["air"]
 FROM alpine
 
 COPY --from=perms /entrypoint.sh /entrypoint.sh
-COPY --from=builder /app/penpals-api .
+COPY --from=builder /app/GBA .
 COPY --from=builder /app/migration .
 COPY --from=builder /app/local.env ./app/
 COPY --from=builder /app/tls/ ./tls/
