@@ -11,7 +11,7 @@ RUN go mod tidy
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o GBA ./cmd/GBA/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o MyGPT_API ./cmd/MyGPT/main.go
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o migration ./cmd/migrate/migrate.go
 
 FROM golang:1.23.2 as development
@@ -29,7 +29,7 @@ CMD ["air"]
 FROM alpine
 
 COPY --from=perms /entrypoint.sh /entrypoint.sh
-COPY --from=builder /app/GBA .
+COPY --from=builder /app/MyGPT_API .
 COPY --from=builder /app/migration .
 COPY --from=builder /app/local.env ./app/
 COPY --from=builder /app/tls/ ./tls/

@@ -10,4 +10,4 @@ echo "Exécution des migrations..."
 ./migration
 
 echo "Démarrage de l'application..."
-exec ./GBA
+exec ./MyGPT_API

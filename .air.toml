@@ -6,8 +6,8 @@ source = "."
 target = "."
 
 [build]
-cmd = "go build -o ./tmp/GBA ./cmd/GBA/main.go"
-bin = "tmp/GBA"
+cmd = "go build -o ./tmp/MyGPT_API ./cmd/MyGPT/main.go"
+bin = "tmp/MyGPT_API"
 
 [color]
 main = "yellow"
