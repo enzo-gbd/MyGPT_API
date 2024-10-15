@@ -26,7 +26,7 @@ jobs:
         run: go mod tidy
 
       - name: Build
-        run: go build ./cmd/GBA
+        run: go build ./cmd/MyGPT
 
   test:
     needs: build
